@@ -1,0 +1,89 @@
+para que funcione correctamente
+pip install pillow
+pip install qrcode[pil]
+pip install matplotlib
+pip install xhtml2pdf
+pip install Pillow
+pip install -r requirements.txt
+pip install reportlab
+
+-- VERSION 1.8.8
+MEJORA DE CODIGO
+SE ARREGLA REGISTER_USER LO QUE PERMITE REGISTRAR USUARIOS correctamente
+OPTIMIZACION DE ESTADISTICAS Y GRAFICOS
+SE ARREGLA VISTA DE ADMINISTRADORES SEGUN CORRESPONDA EN SOLICITUDES, GESTION PERSONAL Y GESTION ESPACIOS
+
+--
+
+
+--Detalles y Comandos Utilizados(Models.py)--
+
+models.Model: Clase base para todos los modelos de Django.
+models.CharField: Campo de texto con una longitud máxima.
+models.DateTimeField: Campo de fecha y hora.
+models.ImageField: Campo de imagen.
+models.BooleanField: Campo booleano.
+models.ForeignKey: Define una relación de muchos a uno con otro modelo.
+models.OneToOneField: Define una relación de uno a uno con otro modelo.
+models.CASCADE: Define el comportamiento al eliminar la instancia relacionada; elimina en cascada.
+models.SET_NULL: Define el comportamiento al eliminar la instancia relacionada; establece el campo como null.
+models.AutoField: Campo de incremento automático, utilizado principalmente para claves primarias.
+timezone.now: Obtiene la fecha y hora actual.
+qrcode.QRCode: Genera códigos QR.
+BytesIO: Permite trabajar con datos binarios en memoria.
+ContentFile: Permite guardar archivos en campos de archivo.
+uuid.uuid4: Genera UUIDs únicos.
+json.dumps: Convierte datos de Python a JSON.
+super().save: Llama al método save de la clase base para guardar la instancia en la base de datos.
+
+--Cada modelo tiene métodos personalizados, como __str__, para devolver representaciones legibles y save para personalizar la lógica de guardado, incluyendo la generación de IDs únicos y códigos QR.--
+
+
+
+
+
+
+--Detalles y Comandos Utilizados(Forms.py)--
+
+from django import forms: Importa la clase forms de Django, que se utiliza para definir y trabajar con formularios.
+from django.contrib.auth.forms import UserCreationForm: Importa un formulario predefinido de Django para la creación de usuarios.
+from django.contrib.auth.models import User, Group: Importa los modelos User y Group del sistema de autenticación de Django, que manejan usuarios y grupos respectivamente.
+from django.core.exceptions import ValidationError, PermissionDenied: Importa las excepciones estándar de Django que se pueden usar para manejar errores de validación y permisos.
+from django.utils import timezone: Importa timezone de Django, que proporciona funciones relacionadas con zonas horarias y fechas.
+from .models import Alerta, Rol, Departamento, Tipo_Incidencia, Usuario, Espacio, SolucionAlerta, Codigo_Qr: Importa modelos definidos en tu aplicación Django (models.py), incluyendo Alerta, Rol, Departamento, Tipo_Incidencia, Usuario, Espacio, SolucionAlerta, y Codigo_Qr.
+Formularios de Usuario
+LoginForm
+Formulario básico para el inicio de sesión de usuarios.
+UserRegistrationForm
+Formulario para registrar nuevos usuarios, extendido desde ModelForm.
+Define campos como username, email, password1, password2, rol, y departamento.
+Incluye métodos clean_<field> para validaciones personalizadas de campos.
+Sobrescribe el método save() para crear un usuario y asignar roles y departamentos según la lógica de negocio.
+UserEditForm
+Formulario para editar usuarios existentes, extendido desde ModelForm.
+Define campos como username, first_name, last_name, email, rol, y departamento.
+Sobrescribe el método save() para actualizar el usuario y sus atributos relacionados.
+Formularios de Espacio
+CodigoQrForm
+Formulario para el modelo Codigo_Qr, excluyendo el campo idQr.
+EspacioForm
+Formulario para el modelo Espacio, incluyendo campos como nombreEspacio y ubicacion.
+Define un campo idEspacio como de solo lectura y otro idQr como campo oculto.
+Sobrescribe el método __init__() para personalizar los widgets y establecer valores iniciales.
+EspacioEditForm
+Formulario para editar el modelo Espacio, que permite editar nombreEspacio y ubicacion.
+Define validaciones personalizadas para los campos nombreEspacio y ubicacion.
+Formularios de Alerta
+AlertaForm
+Formulario para el modelo Alerta, con campos como descripcion, estado, fecha, evidencia1, evidencia2, evidencia3, tipo_incidencia, departamento, nombre_espacio, ubicacion, idAlerta, y urgente.
+Define opciones de estado como opciones predefinidas.
+Inicializa widgets y valores iniciales basados en la instancia de alerta.
+Incluye el método clean() para validaciones personalizadas y lógica de negocio.
+TransferirAlertaForm
+Formulario simple para transferir alertas a otro departamento.
+Define campos departamento_destino y tipo_incidencia.
+SolucionAlertaForm
+Formulario para registrar la solución de una alerta, basado en el modelo SolucionAlerta.
+Define campos como descripcion, evidencia1, evidencia2, evidencia3, y fecha_resolucion.
+Inicializa el campo fecha_resolucion con la fecha actual.
+Incluye validaciones básicas en el método clean().

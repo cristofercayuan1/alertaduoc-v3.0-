@@ -1,0 +1,98 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %}Perfil de Usuario{% endblock %}
+
+{% block contenido %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <label for="fileInput" style="cursor: pointer;">
+                        <div class="position-relative">
+                            <img id="avatar" src="{% if user.usuario.foto_perfil %}{{ user.usuario.foto_perfil.url }}{% else %}https://via.placeholder.com/150{% endif %}" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                            <div class="overlay">
+                                <i class="bi bi-camera"></i>
+                            </div>
+                        </div>
+                    </label>
+                    <input id="fileInput" type="file" accept="image/*" style="display: none;" onchange="cambiarFotoPerfil(event)">
+                    <h5 class="my-3">{{ user.get_full_name }}</h5>
+                    <p class="text-muted mb-1">{{ user.username }}</p>
+                    <p class="text-muted mb-4">{{ user.email }}</p>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Información del Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Nombre Completo:</strong> {{ user.get_full_name }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Nombre de Usuario:</strong> {{ user.username }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Correo Electrónico:</strong> {{ user.email }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h5>Cambiar Contraseña</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form_contraseña.as_p }}
+                        <button type="submit" name="cambiar_contraseña" class="btn btn-primary">Actualizar Contraseña</button>
+                    </form>
+                </div>
+            </div>
+
+
+<script>
+    function cambiarFotoPerfil(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
+        if (file) {
+            const formData = new FormData();
+            formData.append('foto_perfil', file);
+
+            fetch('{% url "cambiar_foto_perfil" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('avatar').src = data.foto_perfil_url;
+                } else {
+                    alert('Error al actualizar la foto de perfil');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al actualizar la foto de perfil');
+            });
+        }
+    }
+</script>
+{% endblock %}

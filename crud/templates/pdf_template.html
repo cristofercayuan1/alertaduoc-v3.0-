@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta {{ alerta.idAlerta }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 100%; margin: 0 auto; }
+        .header, .content { margin-bottom: 20px; }
+        .header { text-align: center; }
+        .content p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Alerta {{ alerta.idAlerta }}</h1>
+        </div>
+        <div class="content">
+            <p><strong>ID Alerta:</strong> {{ alerta.idAlerta }}</p>
+            <p><strong>Descripción:</strong> {{ alerta.descripcion }}</p>
+            <p><strong>Fecha:</strong> {{ alerta.fecha }}</p>
+            <p><strong>Nombre Espacio:</strong> {{ alerta.nombre_espacio }}</p>
+            <p><strong>Ubicación:</strong> {{ alerta.ubicacion }}</p>
+            <p><strong>Tipo de Incidencia:</strong> {{ alerta.tipo_incidencia }}</p>
+            <p><strong>Estado:</strong> {{ alerta.estado }}</p>
+            <p><strong>Departamento:</strong> {{ alerta.departamento }}</p>
+        </div>
+    </div>
+</body>
+</html>

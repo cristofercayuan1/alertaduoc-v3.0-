@@ -1,0 +1,129 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %} Solución de Alerta {% endblock %}
+
+{% block contenido %}
+<style>
+    .custom-card {
+        margin-top: 20px;
+    }
+    .custom-images {
+        margin-top: 20px;
+    }
+    .image-preview {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+    .image-preview img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin-right: 10px;
+        border-radius: 5px;
+    }
+    .image-preview button {
+        flex-shrink: 0;
+    }
+    .btn-back {
+        margin-top: 20px;
+    }
+    .carousel-item img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="container">
+    <h1 class="mt-5">Solución de Alerta</h1>
+    <div class="card custom-card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.descripcion.label_tag }}
+                            {{ form.descripcion }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.fecha_resolucion.label_tag }}
+                            {{ form.fecha_resolucion }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.evidencia1.label_tag }}
+                            {{ form.evidencia1 }}
+                            <div id="preview-1" class="image-preview"></div>
+                        </div>
+                        <div class="form-group">
+                            {{ form.evidencia2.label_tag }}
+                            {{ form.evidencia2 }}
+                            <div id="preview-2" class="image-preview"></div>
+                        </div>
+                        <div class="form-group">
+                            {{ form.evidencia3.label_tag }}
+                            {{ form.evidencia3 }}
+                            <div id="preview-3" class="image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </form>
+            <a href="{% url 'detalles_alerta' id_alerta=alerta.idAlerta %}" class="btn btn-secondary btn-back">Regresar</a>
+        </div>
+    </div>
+    <div class="custom-images" id="image-container">
+        <!-- Aquí se mostrarán las imágenes subidas -->
+    </div>
+</div>
+
+<!-- Bootstrap JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function previewImage(event, id) {
+        const reader = new FileReader();
+        reader.onload = function(){
+            const output = document.getElementById('preview-' + id);
+            output.innerHTML = `
+                <div class="image-preview">
+                    <img src="${reader.result}" alt="Vista previa">
+                    <button type="button" class="btn btn-danger" onclick="removeImage(${id})">Eliminar</button>
+                </div>
+            `;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function removeImage(id) {
+        document.getElementById('preview-' + id).innerHTML = '';
+        document.getElementById('id_evidencia' + id).value = '';
+    }
+
+    document.getElementById('id_evidencia1').addEventListener('change', function(event) {
+        previewImage(event, 1);
+    });
+    document.getElementById('id_evidencia2').addEventListener('change', function(event) {
+        previewImage(event, 2);
+    });
+    document.getElementById('id_evidencia3').addEventListener('change', function(event) {
+        previewImage(event, 3);
+    });
+
+    // Establecer la fecha en el formato dd/mm/yyyy al cargar la página
+    document.addEventListener("DOMContentLoaded", function() {
+        let fechaInput = document.getElementById("{{ form.fecha_resolucion.id_for_label }}");
+        let today = new Date();
+        let day = ('0' + today.getDate()).slice(-2);
+        let month = ('0' + (today.getMonth() + 1)).slice(-2);
+        let year = today.getFullYear();
+        let formattedDate = `${day}/${month}/${year}`;
+        fechaInput.value = formattedDate;
+    });
+</script>
+{% endblock %}

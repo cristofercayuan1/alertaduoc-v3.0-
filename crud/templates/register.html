@@ -1,0 +1,102 @@
+{% extends "plantillaBase.html" %}
+{% block titulo %} Registro de Usuario {% endblock %}
+{% block contenido %}
+{% load static %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Formulario para registrar personal</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.username.id_for_label }}" class="col-sm-4 col-form-label">Nombre de Usuario:</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="username" id="{{ form.username.id_for_label }}" class="form-control {% if form.username.errors %}is-invalid{% endif %}">
+                                {{ form.username.errors }}
+                                <small id="{{ form.username.id_for_label }}Help" class="form-text text-muted">Mínimo 5 caracteres. Solo letras, números y @/./+/-/_.</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.password1.id_for_label }}" class="col-sm-4 col-form-label">Contraseña:</label>
+                            <div class="col-sm-8">
+                                <input type="password" name="password1" id="{{ form.password1.id_for_label }}" class="form-control {% if form.password1.errors %}is-invalid{% endif %}">
+                                {{ form.password1.errors }}
+                                <small id="{{ form.password1.id_for_label }}Help" class="form-text text-muted">Mínimo 8 caracteres. Al menos 1 letra y 1 número.</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.password2.id_for_label }}" class="col-sm-4 col-form-label">Repetir Contraseña:</label>
+                            <div class="col-sm-8">
+                                <input type="password" name="password2" id="{{ form.password2.id_for_label }}" class="form-control {% if form.password2.errors %}is-invalid{% endif %}">
+                                {{ form.password2.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.first_name.id_for_label }}" class="col-sm-4 col-form-label">Nombre:</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}">
+                                {{ form.first_name.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.last_name.id_for_label }}" class="col-sm-4 col-form-label">Apellidos:</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}">
+                                {{ form.last_name.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.email.id_for_label }}" class="col-sm-4 col-form-label">Correo Electrónico:</label>
+                            <div class="col-sm-8">
+                                <input type="email" name="email" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}">
+                                {{ form.email.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.rol.id_for_label }}" class="col-sm-4 col-form-label">Rol:</label>
+                            <div class="col-sm-8">
+                                {{ form.rol }}
+                                {{ form.rol.errors }}
+                            </div>
+                        </div>
+                    
+                        {% if not hide_departamento %}
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.departamento.id_for_label }}" class="col-sm-4 col-form-label">Departamento:</label>
+                            <div class="col-sm-8">
+                                {{ form.departamento }}
+                                {{ form.departamento.errors }}
+                            </div>
+                        </div>
+                        {% else %}
+                        {{ form.departamento }}
+                        {% endif %}
+
+                        <div class="mb-3 row">
+                            <div class="col-6 d-flex justify-content-start">
+                                <a href="{% url 'gestion_personal' %}" class="btn btn-secondary">Volver</a>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Registrar Usuario</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

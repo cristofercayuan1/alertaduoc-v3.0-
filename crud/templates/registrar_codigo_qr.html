@@ -1,0 +1,76 @@
+{% extends "plantillaBase.html" %}
+{% block titulo %} Registrar Código QR {% endblock %}
+{% block contenido %}
+    <style>
+        /* Estilos adicionales */
+        .codigo-qr {
+            max-width: 300px; /* Tamaño máximo de la imagen del código QR */
+            height: auto;
+        }
+        .input-group-text {
+            width: 80px; /* Ancho del campo de texto para el ID */
+        }
+    </style>
+    
+    <div class="container">
+        <h1 class="mt-5 mb-4 text-center">Registrar Código QR</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form id="codigoQrForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">ID</span>
+                        </div>
+                        <!-- Campo de entrada de ID de solo lectura para mostrar el ID automáticamente generado -->
+                        <input type="text" class="form-control" id="idQrInput" name="idQrInput" value="{{ form.initial.idQrInput }}" required readonly>
+                    </div>
+                    <div class="text-center mb-4">
+                        <button type="button" class="btn btn-primary" onclick="generarCodigoQR()">Generar Código QR</button>
+                    </div>
+                    <div id="codigoQrPreview" class="text-center mb-4"></div>
+                    <!-- Campo oculto para almacenar el ID generado automáticamente -->
+                    <input type="hidden" name="idQr" id="idQrField">
+                    <div class="text-center">
+                        <button id="guardarBtn" type="submit" class="btn btn-success" disabled>Guardar Código QR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para generar el código QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script>
+        function generarCodigoQR() {
+            // Generar un ID único alfanumérico para el código QR
+            var nuevoId = generateUUID().substr(0, 10);
+            
+            // Establecer el ID generado automáticamente en el campo de entrada
+            document.getElementById("idQrInput").value = nuevoId;
+            document.getElementById("idQrField").value = nuevoId;
+
+            // Generar el código QR con el nuevo ID
+            var qr = qrcode(0, 'H');
+            qr.addData(nuevoId); // Datos para el QR
+            qr.make();
+            document.getElementById("codigoQrPreview").innerHTML = qr.createImgTag();
+
+            // Habilitar el botón de guardar
+            document.getElementById("guardarBtn").disabled = false;
+        }
+
+        // Función para generar un ID único alfanumérico
+        function generateUUID() { // Public Domain/MIT
+            var d = new Date().getTime();
+            if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+                d += performance.now(); // Use high-precision timer if available
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+    </script>
+{% endblock %}

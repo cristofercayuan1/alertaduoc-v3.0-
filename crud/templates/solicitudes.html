@@ -1,0 +1,248 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %} Listado de Alertas {% endblock %}
+
+{% block contenido %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Filtrar Alertas</h5>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'listar_alertas' %}" method="GET">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <select name="ubicacion" class="form-select form-select-sm" aria-label="Filtrar por Ubicación">
+                                <option value="" selected disabled>Seleccionar Ubicación</option>
+                                {% for ubicacion in ubicaciones %}
+                                <option value="{{ ubicacion }}" {% if ubicacion == ubicacion_filtro %}selected{% endif %}>{{ ubicacion }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <select name="estado" class="form-select form-select-sm" aria-label="Filtrar por Estado">
+                                <option value="" selected disabled>Seleccionar Estado</option>
+                                {% for key, value in estados %}
+                                <option value="{{ key }}" {% if key == estado_filtro %}selected{% endif %}>{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if tipos_incidencia %}
+                        <div class="col-lg-3">
+                            <select name="tipo" class="form-select form-select-sm" aria-label="Filtrar por Tipo de Incidencia">
+                                <option value="" selected disabled>Seleccionar Tipo de Incidencia</option>
+                                {% for tipo in tipos_incidencia %}
+                                <option value="{{ tipo.pk }}" {% if tipo.pk == tipo_filtro %}selected{% endif %}>{{ tipo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <div class="col-lg-3 mt-2 mt-lg-0">
+                            <button type="submit" class="btn btn-secondary btn-sm ms-2">Aplicar Filtro</button>
+                            <a href="{% url 'listar_alertas' %}" class="btn btn-secondary btn-sm ms-2">Quitar Filtros</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Listado de Alertas ({{ total_alertas_filtradas }} en Total, {{ total_alertas_filtradas }} filtrados)</h5>
+                    {% if user.usuario.rol.rol == 'apoyo' %}
+                        <form method="GET" action="{% url 'filtrar_mis_alertas' %}">
+                            <button type="submit" class="btn btn-primary btn-sm">Mis Alertas Asignadas</button>
+                        </form>
+                    {% endif %}
+                    {% if user.usuario.rol.rol == 'admin' %}
+                        <a href="{% url 'alertas_por_aprobar' %}" class="btn btn-secondary btn-sm">Alertas por aprobar solución</a>
+                    {% endif %}
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Ubicación</th>
+                        <th>Tipo de Incidencia</th>
+                        <th>Estado / Asignado a</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alerta in alertas %}
+                    <tr>
+                        <td>{{ alerta.fecha }}</td>
+                        <td>{{ alerta.ubicacion }}</td>
+                        <td>
+                            {{ alerta.tipo_incidencia.incidencia }}
+                        </td>
+                        <td>
+                            {% if alerta.encargado %}
+                                {% if alerta.estado == '1' %}
+                                    <span style="color: yellow; font-size: 1.2em;">‎❕</span> Pendiente / {{ alerta.encargado.username }}
+                                {% elif alerta.estado == '3' %}
+                                    <span style="color: #87CEEB; font-size: 1.2em;">👁️‍🗨️</span> Observación / {{ alerta.encargado.username }}
+                                {% elif alerta.estado == '2' %}
+                                    <span style="color: green; font-size: 1.2em;">✔</span> Resuelto / {{ alerta.encargado.username }}
+                                {% endif %}
+                            {% else %}
+                                {% if alerta.estado == '1' %}
+                                    <span style="color: yellow; font-size: 1.2em;">‎❕</span> Pendiente / Sin Asignar
+                                {% elif alerta.estado == '3' %}
+                                    <span style="color: #87CEEB; font-size: 1.2em;">👁️‍🗨️</span> Observación / Sin Asignar
+                                {% elif alerta.estado == '2' %}
+                                    <span style="color: green; font-size: 1.2em;">✔</span> Resuelto / Sin Asignar
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'detalles_alerta' alerta.idAlerta %}" class="btn btn-primary btn-sm">Ver Detalles</a>
+                            {% if user.usuario.rol.rol == 'apoyo' and not alerta.encargado %}
+                                <button class="btn btn-warning btn-sm tomar-alerta-btn" data-alerta-id="{{ alerta.idAlerta }}">Tomar Alerta</button>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                                {% if user.usuario.rol.rol == 'admin' %}
+                                    {% if alerta.encargado %}
+                                        <form method="POST" action="{% url 'desasignar_alerta' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="alerta_id" value="{{ alerta.idAlerta }}">
+                                            <button type="submit" class="btn btn-warning btn-sm">Desasignar Alerta</button>
+                                        </form>
+                                    {% else %}
+                                        <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#asignarModal" data-alerta-id="{{ alerta.idAlerta }}">Asignar Alerta</button>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p>Total de Alertas: {{ total_alertas }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de asignación de alerta -->
+<div class="modal fade" id="asignarModal" tabindex="-1" aria-labelledby="asignarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="asignarModalLabel">Asignar Alerta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="asignarForm" method="POST" action="{% url 'asignar_alerta' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="alerta_id" id="alertaIdInput">
+                    <div class="mb-3">
+                        <label for="encargado" class="form-label">Seleccionar Usuario</label>
+                        <select name="encargado" id="encargado" class="form-select">
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}">{{ usuario.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Asignar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Toma de Alerta -->
+<div class="modal fade" id="confirmacion-tomar-alerta-modal" tabindex="-1" aria-labelledby="confirmacion-tomar-alerta-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacion-tomar-alerta-modal-label">Confirmación de Toma de Alerta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas tomar esta alerta?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmar-tomar-alerta-btn">Tomar Alerta</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var asignarModal = document.getElementById('asignarModal');
+        asignarModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var alertaId = button.getAttribute('data-alerta-id');
+            var inputAlertId = document.getElementById('alertaIdInput');
+            inputAlertId.value = alertaId;
+        });
+
+        var tomarAlertaButtons = document.querySelectorAll('.tomar-alerta-btn');
+
+tomarAlertaButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+        var alertaId = button.getAttribute('data-alerta-id');
+        
+        // Mostrar modal de confirmación de toma de alerta
+        $('#confirmacion-tomar-alerta-modal').modal('show');
+
+        // Al hacer clic en el botón de confirmación del modal
+        document.getElementById('confirmar-tomar-alerta-btn').addEventListener('click', function() {
+            // Realizar petición AJAX para tomar la alerta
+            var url = '/tomar-alerta/' + alertaId + '/';
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al tomar la alerta');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Mostrar mensaje de éxito
+                $('#confirmacion-tomar-alerta-modal').modal('hide'); // Ocultar el modal
+                alert('Alerta tomada con éxito');
+                // Actualizar la página o hacer cualquier acción necesaria
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error al tomar la alerta:', error);
+                alert('Error al tomar la alerta. Por favor, intenta de nuevo.');
+            });
+        });
+    });
+});
+
+// Función auxiliar para obtener el valor de la cookie CSRF
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+    });
+</script>
+
+{% endblock %}
+    

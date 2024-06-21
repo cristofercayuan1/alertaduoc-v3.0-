@@ -1,0 +1,32 @@
+body {
+    background-color: #030303; /* Azul oscuro */
+}
+
+.login-logo-container {
+    max-width: 500px; /* Aumentar el tamaño máximo del contenedor de la imagen */
+    margin: auto;
+    background-color: white; /* Fondo blanco para el logo */
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.login-form-container {
+    max-width: 400px;
+    margin: auto;
+}
+
+.login-form-container .form-control {
+    border-radius: 0;
+    padding: 10px 20px;
+    position: relative;
+}
+
+.login-form-container .form-control::placeholder {
+    color: #ccc;
+}
+
+.login-form-container .form-group i.icon-position {
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}

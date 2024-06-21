@@ -1,0 +1,17 @@
+/* Estilos CSS para el mensaje de confirmación de registro */
+#registration-success {
+    position: fixed;
+    top: 0;
+    right: 0;
+    margin: 20px;
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 5px;
+    display: none;
+}
+
+/* Estilos para campos inválidos */
+.invalid-field {
+    background-color: #ffe6e6; /* Color de fondo rojo claro */
+}

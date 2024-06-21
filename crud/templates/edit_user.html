@@ -1,0 +1,91 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %} Editar Usuario {% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Editar Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="editar_usuario_form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Nombre de Usuario</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_first_name" class="form-label">Nombre</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.first_name.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_last_name" class="form-label">Apellidos</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.last_name.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Correo Electrónico</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_rol" class="form-label">Rol</label>
+                            {{ form.rol }}
+                            {% if form.rol.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.rol.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_departamento" class="form-label">Departamento</label>
+                            {{ form.departamento }}
+                            {% if form.departamento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.departamento.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 row">
+                            <div class="col-6 d-flex justify-content-start">
+                                <a href="{% url 'gestion_personal' %}" class="btn btn-secondary">Volver</a>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Puedes agregar scripts adicionales aquí si es necesario
+</script>
+{% endblock %}

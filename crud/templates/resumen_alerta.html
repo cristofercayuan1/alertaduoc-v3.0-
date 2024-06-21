@@ -1,0 +1,75 @@
+{% extends "plantillaBase.html" %}
+{% load static %}
+{% block titulo %}Resumen de la Alerta{% endblock %}
+{% block contenido %}
+<!-- Mensaje de alerta enviada con éxito -->
+{% if success_messages %}
+    <div class="alert alert-success">
+        {% for message in success_messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-center">Resumen de la Alerta</h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{% static 'images/logoduoc.png' %}" alt="Logo DUOC UC" style="width: 200px; height: auto; margin-bottom: 20px;">
+                    <p><strong>ID Alerta:</strong> {{ alerta.idAlerta }}</p>
+                    <p><strong>Descripción:</strong> {{ alerta.descripcion }}</p>
+                    <p><strong>Fecha:</strong> {{ fecha_formateada }}</p>
+                    <p><strong>Nombre Espacio:</strong> {{ alerta.nombre_espacio }}</p>
+                    <p><strong>Ubicación:</strong> {{ alerta.ubicacion }}</p>
+                    <p><strong>Tipo de Incidencia:</strong> {{ alerta.tipo_incidencia }}</p>
+                    <p><strong>Estado:</strong> 
+                        {% if alerta.estado == '1' %}
+                            Pendiente
+                        {% elif alerta.estado == '2' %}
+                            Resuelto
+                        {% elif alerta.estado == '3' %}
+                            En observación
+                        {% else %}
+                            Desconocido
+                        {% endif %}
+                    </p>
+                    <p><strong>Departamento:</strong> {{ alerta.departamento }}</p>
+
+                    <div class="d-flex justify-content-center mt-4">
+                        <div class="btn-group" role="group" aria-label="Botones de Descarga">
+                            <form action="{% url 'generar_pdf' alerta.idAlerta %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary mr-2 rounded-pill">Descargar PDF</button>
+                            </form>
+                    
+                            <form action="{% url 'generar_imagen' alerta.idAlerta %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary rounded-pill">Descargar Imagen</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div
+<!-- Advertencia -->
+<div class="alert alert-warning text-center mt-4">
+    Recuerda descargar el resumen de tu alerta para poder consultar el estado de tu solicitud.
+</div>
+
+<script>
+    window.onload = function () {
+        if (window.history.state) {
+            window.history.pushState(null, "", window.location.href);
+            window.onpopstate = function () {
+                window.history.pushState(null, "", window.location.href);
+            };
+        }
+    };
+</script>
+{% endblock %}

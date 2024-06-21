@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row justify-content-center align-items-center vh-100">
+        <div class="col-lg-5 col-md-6 col-sm-8 col-10 text-center">
+            <div class="login-logo-container bg-white p-4 rounded">
+                <img src="{% static 'images/logoduoc.png' %}" alt="Imagen" class="img-fluid">
+            </div>
+        </div>
+        <div class="col-lg-5 col-md-6 col-sm-8 col-10">
+            <div class="login-form-container bg-white p-4 shadow rounded">
+                <h2 class="text-center mb-4">Iniciar sesión</h2>
+                {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+                {% endif %}
+                <form id="login-form" method="post">
+                    {% csrf_token %}
+                    <div class="form-group position-relative">
+                        <input type="text" name="username" id="username" class="form-control pl-5" placeholder="Usuario" required>
+                        <i class="fas fa-user position-absolute icon-position"></i>
+                    </div>
+                    <div class="form-group position-relative">
+                        <input type="password" name="password" id="password" class="form-control pl-5" placeholder="Contraseña" required>
+                        <i class="fas fa-lock position-absolute icon-position"></i>
+                    </div>
+                    <div class="form-group mt-2">
+                        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+{% extends "plantillaBase.html" %}
+{% block titulo %} Detalle de Estado de Alerta {% endblock %}
+{% block contenido %}
+<style>
+    .carousel-image {
+        height: 300px;
+        object-fit: contain;
+    }
+
+    @media (max-width: 768px) {
+        .carousel-image {
+            height: auto;
+        }
+    }
+
+    .custom-carousel-control {
+        background-color: rgba(0, 0, 0, 0.5);
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+    }
+
+    .custom-carousel-control:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1);
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="card-title text-center mb-4">Detalle de Estado de Alerta</h1>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Detalles de la Alerta</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="idAlerta" class="form-label"><strong>ID de Alerta:</strong></label>
+                                    <p id="idAlerta">{{ alerta.idAlerta }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="descripcionAlerta" class="form-label"><strong>Descripción:</strong></label>
+                                    <p id="descripcionAlerta">{{ alerta.descripcion }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="estadoAlerta" class="form-label"><strong>Estado:</strong></label>
+                                    <p id="estadoAlerta">{{ alerta.get_estado_display }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="incidenciaAlerta" class="form-label"><strong>Incidencia:</strong></label>
+                                    <p id="incidenciaAlerta">{{ alerta.tipo_incidencia }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fechaAlerta" class="form-label"><strong>Fecha:</strong></label>
+                                    <p id="fechaAlerta">{{ fecha_actual }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="espacioAlerta" class="form-label"><strong>Espacio:</strong></label>
+                                    <p id="espacioAlerta">{{ alerta.nombre_espacio }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ubicacionAlerta" class="form-label"><strong>Ubicacion:</strong></label>
+                                    <p id="ubicacionAlerta">{{ alerta.ubicacion }}</p>
+                                </div>                                
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Evidencias de la Alerta</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="evidenciasCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    {% if alerta.evidencia1 %}
+                                        <div class="carousel-item active">
+                                            <img src="{{ alerta.evidencia1.url }}" class="d-block w-100 carousel-image" alt="Evidencia 1">
+                                        </div>
+                                    {% endif %}
+                                    {% if alerta.evidencia2 %}
+                                        <div class="carousel-item {% if not alerta.evidencia1 %}active{% endif %}">
+                                            <img src="{{ alerta.evidencia2.url }}" class="d-block w-100 carousel-image" alt="Evidencia 2">
+                                        </div>
+                                    {% endif %}
+                                    {% if alerta.evidencia3 %}
+                                        <div class="carousel-item {% if not alerta.evidencia1 and not alerta.evidencia2 %}active{% endif %}">
+                                            <img src="{{ alerta.evidencia3.url }}" class="d-block w-100 carousel-image" alt="Evidencia 3">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#evidenciasCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Anterior</span>
+                                </button>
+                                <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#evidenciasCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Siguiente</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Detalles de la Solución</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                {% if solucion_alerta %}
+                                    <div class="mb-3">
+                                        <label for="descripcionSolucion" class="form-label"><strong>Descripción:</strong></label>
+                                        <p id="descripcionSolucion">{{ solucion_alerta.descripcion }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="fechaSolucion" class="form-label"><strong>Fecha de Resolución:</strong></label>
+                                        <p id="fechaSolucion">{{ solucion_alerta.fecha_resolucion }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="fechaSolucion" class="form-label"><strong>Encargado de solución:</strong></label>
+                                        <p id="fechaSolucion">{{ alerta.encargado }}</p>
+                                    </div>
+                                {% else %}
+                                    <div class="mb-3">
+                                        <p><strong>Solución en Espera</strong></p>
+                                    </div>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Evidencias de la Solución</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="solucionCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    {% if solucion_alerta.evidencia1 %}
+                                        <div class="carousel-item active">
+                                            <img src="{{ solucion_alerta.evidencia1.url }}" class="d-block w-100 carousel-image" alt="Evidencia 1">
+                                        </div>
+                                    {% endif %}
+                                    {% if solucion_alerta.evidencia2 %}
+                                        <div class="carousel-item {% if not solucion_alerta.evidencia1 %}active{% endif %}">
+                                            <img src="{{ solucion_alerta.evidencia2.url }}" class="d-block w-100 carousel-image" alt="Evidencia 2">
+                                        </div>
+                                    {% endif %}
+                                    {% if solucion_alerta.evidencia3 %}
+                                        <div class="carousel-item {% if not solucion_alerta.evidencia1 and not solucion_alerta.evidencia2 %}active{% endif %}">
+                                            <img src="{{ solucion_alerta.evidencia3.url }}" class="d-block w-100 carousel-image" alt="Evidencia 3">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#solucionCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Anterior</span>
+                                </button>
+                                <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#solucionCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Siguiente</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

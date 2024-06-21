@@ -1,0 +1,70 @@
+{% extends "plantillaBase.html" %}
+{% block titulo %} Listado de QRs {% endblock %}
+{% block contenido %}
+    <style>
+        /* Estilos adicionales */
+        .codigo-qr-container {
+            text-align: center;
+            margin-bottom: 30px; /* Mayor separación entre cada código QR */
+        }
+        .codigo-qr {
+            width: 150px; /* Tamaño de la imagen de miniatura */
+            height: 150px;
+        }
+        .nombre-espacio {
+            margin-bottom: 10px; /* Mayor separación entre el nombre del espacio y la imagen del código QR */
+            font-weight: bold;
+        }
+        .codigo-unico {
+            margin-top: 10px; /* Mayor separación entre la imagen del código QR y su código único */
+        }
+        .imagen-modal {
+            max-width: 100%;
+            max-height: 80vh; /* Altura máxima de la imagen modal */
+            margin: auto;
+            display: block;
+        }
+    </style>
+
+    <div class="container">
+        <h1 class="mt-5 mb-4">Ver Códigos QR</h1>
+        <div class="row">
+            {% for codigo_qr in codigos_qr %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="codigo-qr-container">
+                        <p class="nombre-espacio">Nombre del Espacio: {{ codigo_qr.espacio.nombreEspacio }}</p>
+                        <img src="{{ codigo_qr.imagenqr.url }}" class="card-img-top codigo-qr" alt="Código QR">
+                        <p class="codigo-unico">Código QR: {{ codigo_qr.idQr }}</p>
+                    </div>
+                    <div class="card-body text-center">
+                        <a href="#" class="btn btn-primary mt-2 " data-toggle="modal" data-target="#imagenModal{{ codigo_qr.idQr }}">Ver en grande</a>
+                        <a href="{{ codigo_qr.imagenqr.url }}" download="{{ codigo_qr.idQr }}.png" class="btn btn-success mt-2">Descargar</a>
+                        <!-- Botón para eliminar el código QR -->
+                        <form action="{% url 'eliminar_qr' codigo_qr.idQr %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger mt-2">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal para ver la imagen en grande -->
+            <div class="modal fade" id="imagenModal{{ codigo_qr.idQr }}" tabindex="-1" role="dialog" aria-labelledby="imagenModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="imagenModalLabel">Código QR {{ codigo_qr.idQr }}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="{{ codigo_qr.imagenqr.url }}" class="imagen-modal" alt="Código QR {{ codigo_qr.idQr }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %}Formulario de Alerta{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Formulario para registrar una alerta</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="token" value="{{ token }}">
+                        {{ form.non_field_errors }}
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.idAlerta.id_for_label }}" class="col-sm-4 col-form-label">ID Alerta</label>
+                            <div class="col-sm-8">
+                                {{ form.idAlerta }}
+                                {{ form.idAlerta.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="{{ form.descripcion.id_for_label }}" name="{{ form.descripcion.name }}" rows="10">{{ form.descripcion.value }}</textarea>
+                            {{ form.descripcion.errors }}
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.fecha.id_for_label }}" class="col-sm-4 col-form-label">Fecha</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="{{ form.fecha.id_for_label }}" name="{{ form.fecha.name }}" value="{{ fecha }}" readonly>
+                                {{ form.fecha.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.tipo_incidencia.id_for_label }}" class="col-sm-4 col-form-label">Tipo de Incidencia</label>
+                            <div class="col-sm-8">
+                                {{ form.tipo_incidencia }}
+                                {{ form.tipo_incidencia.errors }}
+                            </div>
+                        </div>
+
+                        {{ form.estado }}  <!-- Campo oculto -->
+                        {{ form.departamento }}  <!-- Campo oculto -->
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.nombre_espacio.id_for_label }}" class="col-sm-4 col-form-label">Nombre Espacio</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="{{ form.nombre_espacio.id_for_label }}" name="{{ form.nombre_espacio.name }}" value="{{ nombre_espacio }}" readonly>
+                                {{ form.nombre_espacio.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.ubicacion.id_for_label }}" class="col-sm-4 col-form-label">Ubicación</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="{{ form.ubicacion.id_for_label }}" name="{{ form.ubicacion.name }}" value="{{ ubicacion }}" readonly>
+                                {{ form.ubicacion.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.urgente.id_for_label }}" class="col-sm-4 col-form-label">¿Es urgente?</label>
+                            <div class="col-sm-8">
+                                {{ form.urgente }}
+                                {{ form.urgente.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label">Evidencia 1</label>
+                            <div class="col-sm-8">
+                                <div class="file-preview-container">
+                                    <input type="file" id="id_evidencia1" name="evidencia1" accept="image/*" capture="camera">
+                                    <div class="modal fade" id="modal_evidencia1" tabindex="-1" role="dialog" aria-labelledby="modal_evidencia1_Label" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modal_evidencia1_Label">Vista Previa de la Imagen</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body text-center">
+                                                    <img id="img_preview_evidencia1" class="img-fluid" src="" alt="Vista Previa">
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-primary btn-confirm" data-target="modal_evidencia1">Confirmar Imagen</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{ form.evidencia1.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label">Evidencia 2</label>
+                            <div class="col-sm-8">
+                                <div class="file-preview-container">
+                                    <input type="file" id="id_evidencia2" name="evidencia2" accept="image/*" capture="camera">
+                                    <div class="modal fade" id="modal_evidencia2" tabindex="-1" role="dialog" aria-labelledby="modal_evidencia2_Label" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modal_evidencia2_Label">Vista Previa de la Imagen</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body text-center">
+                                                    <img id="img_preview_evidencia2" class="img-fluid" src="" alt="Vista Previa">
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-primary btn-confirm" data-target="modal_evidencia2">Confirmar Imagen</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{ form.evidencia2.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label">Evidencia 3</label>
+                            <div class="col-sm-8">
+                                <div class="file-preview-container">
+                                    <input type="file" id="id_evidencia3" name="evidencia3" accept="image/*" capture="camera">
+                                    <div class="modal fade" id="modal_evidencia3" tabindex="-1" role="dialog" aria-labelledby="modal_evidencia3_Label" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modal_evidencia3_Label">Vista Previa de la Imagen</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body text-center">
+                                                    <img id="img_preview_evidencia3" class="img-fluid" src="" alt="Vista Previa">
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-primary btn-confirm" data-target="modal_evidencia3">Confirmar Imagen</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{ form.evidencia3.errors }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">Enviar Alerta</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    .card-header {
+        background-color: #007bff;
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .card-body {
+        padding: 30px;
+    }
+    .file-preview-container {
+        position: relative;
+    }
+    .file-preview-container input[type="file"] {
+        display: block;
+    }
+    .file-preview-container img {
+        max-width: 100%;
+        height: auto;
+        margin-top: 10px;
+    }
+    .file-preview-container .btn-confirm {
+        margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 15px;
+        }
+        .file-preview-container {
+            text-align: center;
+        }
+        .file-preview-container img {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function handleFileChange(event, modalId, imgId) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(imgId).src = e.target.result;
+                $("#" + modalId).modal("show");
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        document.getElementById("id_evidencia1").addEventListener("change", function(event) {
+            handleFileChange(event, "modal_evidencia1", "img_preview_evidencia1");
+        });
+        document.getElementById("id_evidencia2").addEventListener("change", function(event) {
+            handleFileChange(event, "modal_evidencia2", "img_preview_evidencia2");
+        });
+        document.getElementById("id_evidencia3").addEventListener("change", function(event) {
+            handleFileChange(event, "modal_evidencia3", "img_preview_evidencia3");
+        });
+
+        $(".btn-confirm").click(function() {
+            var target = $(this).data("target");
+            $("#" + target).modal("hide");
+        });
+    });
+</script>
+{% endblock %}

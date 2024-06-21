@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>registar usuario</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="{% static 'CSS/styles.css' %}">
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Formulario de Registro de Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.username.id_for_label }}" class="col-sm-4 col-form-label">Nombre de Usuario:</label>
+                            <div class="col-sm-8">
+                                {{ form.username }}
+                                {{ form.username.errors }}
+                                <small id="{{ form.username.id_for_label }}Help" class="form-text text-muted">Mínimo 5 caracteres. Solo letras, números y @/./+/-/_.</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.password1.id_for_label }}" class="col-sm-4 col-form-label">Contraseña:</label>
+                            <div class="col-sm-8">
+                                {{ form.password1 }}
+                                {{ form.password1.errors }}
+                                <small id="{{ form.password1.id_for_label }}Help" class="form-text text-muted">Mínimo 8 caracteres. Al menos 1 letra y 1 número.</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.password2.id_for_label }}" class="col-sm-4 col-form-label">Repetir Contraseña:</label>
+                            <div class="col-sm-8">
+                                {{ form.password2 }}
+                                {{ form.password2.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.first_name.id_for_label }}" class="col-sm-4 col-form-label">Nombre:</label>
+                            <div class="col-sm-8">
+                                {{ form.first_name }}
+                                {{ form.first_name.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.last_name.id_for_label }}" class="col-sm-4 col-form-label">Apellidos:</label>
+                            <div class="col-sm-8">
+                                {{ form.last_name }}
+                                {{ form.last_name.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.email.id_for_label }}" class="col-sm-4 col-form-label">Correo Electrónico:</label>
+                            <div class="col-sm-8">
+                                {{ form.email }}
+                                {{ form.email.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.rol.id_for_label }}" class="col-sm-4 col-form-label">Rol:</label>
+                            <div class="col-sm-8">
+                                {{ form.rol }}
+                                {{ form.rol.errors }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 row align-items-center">
+                            <label for="{{ form.departamento.id_for_label }}" class="col-sm-4 col-form-label">Departamento:</label>
+                            <div class="col-sm-8">
+                                {{ form.departamento }}
+                                {{ form.departamento.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <div class="col-sm-8 offset-sm-4">
+                                <button type="submit" class="btn btn-primary">Registrar Usuario</button>
+                                <a href="#" class="btn btn-danger ms-2">Eliminar Usuario</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

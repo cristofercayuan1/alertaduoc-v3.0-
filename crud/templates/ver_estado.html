@@ -1,0 +1,18 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %} Ver Estado de Alerta {% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h3 class="text-center mt-4">Ingresa tu ID de alerta para saber mas detalles sobre su estado</h3>
+            <form action="{% url 'ver_estado' %}" method="GET" class="d-flex justify-content-center">
+                {% csrf_token %}
+                <input type="text" class="form-control me-2" style="max-width: 200px;" placeholder="Buscar alerta" aria-label="Buscar alerta" name="alerta_id">
+                <button class="btn btn-dark" type="submit">Buscar</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

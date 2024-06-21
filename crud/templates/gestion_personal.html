@@ -1,0 +1,141 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %} Listado de Usuarios {% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Filtrar Usuarios</h5>
+                        <a href="{% url 'register_user' %}" class="btn btn-success btn-sm">Añadir Personal</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'gestion_personal' %}" method="GET">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <input type="text" id="buscar" name="buscar" class="form-control form-control-sm" placeholder="Buscar por caracteres" value="{{ buscar|default_if_none:'' }}">
+                            </div>
+                            <div class="col-lg-3">
+                                <select name="rol" class="form-select form-select-sm" aria-label="Filtrar por Rol">
+                                    <option value="" {% if not rol_filter %}selected{% endif %}>Seleccionar Rol</option>
+                                    {% for rol in roles %}
+                                        <option value="{{ rol.rol }}" {% if rol.rol == rol_filter %}selected{% endif %}>{{ rol.rol }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if user.usuario.departamento.idDep == '1' %}
+                            <div class="col-lg-3">
+                                <select name="departamento" class="form-select form-select-sm" aria-label="Filtrar por Departamento">
+                                    <option value="" {% if not departamento_filter %}selected{% endif %}>Seleccionar Departamento</option>
+                                    {% for departamento in departamentos %}
+                                        <option value="{{ departamento.idDep }}" {% if departamento.idDep == departamento_filter %}selected{% endif %}>{{ departamento.nombredep }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% endif %}
+                            <div class="col-lg-3 mt-2 mt-lg-0">
+                                <button type="submit" class="btn btn-secondary btn-sm">Aplicar Filtro</button>
+                                <a href="{{ reset_url }}" class="btn btn-secondary btn-sm ms-2">Quitar Filtros</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Listado de Usuarios ({{ total_usuarios_filtrados }} en total, {{ total_usuarios_filtrados }} filtrados)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre de Usuario</th>
+                                    <th>Nombre</th>
+                                    <th>Apellidos</th>
+                                    <th>Rol</th>
+                                    <th>Departamento</th>
+                                    <th>Editar</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usuario in usuarios %}
+                                <tr>
+                                    <td>{{ usuario.usuario.username }}</td>
+                                    <td>{{ usuario.usuario.first_name }}</td>
+                                    <td>{{ usuario.usuario.last_name }}</td>
+                                    <td>{{ usuario.rol }}</td>
+                                    <td>{{ usuario.departamento }}</td>
+                                    <td><a href="{% url 'edit_user' usuario.usuario.id %}" class="btn btn-primary btn-sm">Editar</a></td>
+                                    <td>
+                                        <form action="{% url 'eliminar_usuario' usuario.usuario.id %}" method="post" id="eliminar_form_{{ usuario.usuario.id }}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm eliminar-btn" data-usuario-id="{{ usuario.usuario.id }}">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal de confirmación de eliminación de usuario -->
+<div class="modal fade" id="confirmacion-eliminacion-usuario-modal" tabindex="-1" aria-labelledby="confirmacion-eliminacion-usuario-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacion-eliminacion-usuario-modal-label">Confirmación de Eliminación de Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar al usuario <span id="usuario-nombre"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmar-eliminacion-usuario-btn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Función para manejar el clic en el botón "Eliminar"
+    document.querySelectorAll('.eliminar-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault(); // Evitar el envío del formulario por defecto
+
+            const usuarioId = button.getAttribute('data-usuario-id');
+            const usuarioNombre = button.getAttribute('data-usuario-nombre');
+
+            // Mostrar modal de confirmación de eliminación
+            $('#confirmacion-eliminacion-usuario-modal').modal('show');
+
+            // Actualizar el nombre del usuario en el modal
+            document.getElementById('usuario-nombre').textContent = usuarioNombre;
+
+            // Al hacer clic en el botón de confirmación del modal
+            document.getElementById('confirmar-eliminacion-usuario-btn').addEventListener('click', () => {
+                document.getElementById(`eliminar_form_${usuarioId}`).submit();
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %}Estadísticas de Alertas{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-6">
+            <h2>Alertas más solicitadas por tipo de incidencia</h2>
+            <img src="data:image/png;base64,{{ grafico_solicitadas }}" alt="Gráfico de alertas solicitadas por tipo de incidencia" class="img-fluid">
+        </div>
+
+        <div class="col-md-6">
+            <h2>Alertas más resueltas por departamento</h2>
+            <img src="data:image/png;base64,{{ grafico_resueltas }}" alt="Gráfico de alertas resueltas por departamento" class="img-fluid">
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

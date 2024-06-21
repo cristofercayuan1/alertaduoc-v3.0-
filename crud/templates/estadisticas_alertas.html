@@ -1,0 +1,51 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %}Estadísticas de Alertas{% endblock %}
+
+{% block contenido %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas de Alertas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        @media (max-width: 768px) {
+            .img-fluid {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Estadísticas de Alertas</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Porcentaje de Alertas Resueltas por Departamento</h2>
+            </div>
+            <div class="card-body">
+                <img src="data:image/png;base64,{{ grafico_resueltas }}" alt="Gráfico de Alertas Resueltas por Departamento" class="img-fluid">
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Porcentaje de Alertas por Tipo de Incidencia</h2>
+            </div>
+            <div class="card-body">
+                <img src="data:image/png;base64,{{ grafico_solicitadas }}" alt="Gráfico de Alertas por Tipo de Incidencia" class="img-fluid">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+{% endblock %}

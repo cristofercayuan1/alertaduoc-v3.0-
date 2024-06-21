@@ -1,0 +1,135 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %} Listado de Espacios {% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row mt-3">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Filtrar Espacios</h5>
+                        <a href="{% url 'register_espacio' %}" class="btn btn-success btn-sm">Añadir Espacio</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'buscar_espacio' %}" class="row g-3">
+                        <div class="col-md-3">
+                            <input type="text" id="buscar" name="buscar" class="form-control form-control-sm" placeholder="Nombre del espacio" value="{{ request.GET.buscar }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="ordenar_por" name="ordenar_por" class="form-select form-select-sm">
+                                <option value="nombreEspacio" {% if request.GET.ordenar_por == "nombreEspacio" %}selected{% endif %}>Nombre del Espacio</option>
+                                <option value="ubicacion" {% if request.GET.ordenar_por == "ubicacion" %}selected{% endif %}>Ubicación</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="orden" name="orden" class="form-select form-select-sm">
+                                <option value="asc" {% if request.GET.orden == "asc" %}selected{% endif %}>Ascendente</option>
+                                <option value="desc" {% if request.GET.orden == "desc" %}selected{% endif %}>Descendente</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" class="btn btn-secondary btn-sm ms-3">Aplicar filtro</button>
+                            <a href="{% url 'buscar_espacio' %}" class="btn btn-secondary btn-sm ms-2">Quitar Filtros</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Listado de Espacios ({{ total_espacios }} en Total, {{ total_espacios }} filtrados)</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID del Espacio</th>
+                                    <th>Nombre del Espacio</th>
+                                    <th>Ubicación</th>
+                                    <th>Editar</th>
+                                    <th>Eliminar</th>
+                                    <th>Descargar QR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for espacio in espacios %}
+                                <tr>
+                                    <td>{{ espacio.idEspacio }}</td>
+                                    <td>{{ espacio.nombreEspacio }}</td>
+                                    <td>{{ espacio.ubicacion }}</td>
+                                    <td>
+                                        <a href="{% url 'edit_espacio' idEspacio=espacio.idEspacio %}" class="btn btn-primary btn-sm me-2">Editar</a>
+                                    </td>
+                                    <td>
+                                        <form action="{% url 'eliminar_espacio' espacio.idEspacio %}" method="post" id="eliminar_form_{{ espacio.idEspacio }}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm eliminar-btn" data-espacio-id="{{ espacio.idEspacio }}" data-espacio-nombre="{{ espacio.nombreEspacio }}">Eliminar</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <a href="{{ espacio.codigo_qr.imagenqr.url }}" download="QR_{{ espacio.codigo_qr.idQr }}.png" class="btn btn-success btn-sm">Descargar QR</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="confirmacion-eliminacion-modal" tabindex="-1" aria-labelledby="confirmacion-eliminacion-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacion-eliminacion-modal-label">Confirmación de Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar el espacio <span id="espacio-nombre"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmar-eliminacion-btn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Función para manejar el clic en el botón "Eliminar"
+    document.querySelectorAll('.eliminar-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault(); // Evitar el envío del formulario por defecto
+
+            const espacioId = button.getAttribute('data-espacio-id');
+            const espacioNombre = button.getAttribute('data-espacio-nombre');
+
+            // Mostrar modal de confirmación de eliminación
+            $('#confirmacion-eliminacion-modal').modal('show');
+
+            // Actualizar el nombre del espacio en el modal
+            document.getElementById('espacio-nombre').textContent = espacioNombre;
+
+            // Al hacer clic en el botón de confirmación del modal
+            document.getElementById('confirmar-eliminacion-btn').addEventListener('click', () => {
+                document.getElementById(`eliminar_form_${espacioId}`).submit();
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

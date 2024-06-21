@@ -1,0 +1,164 @@
+{% extends "plantillaBase.html" %}
+
+{% block titulo %} Detalle de la Alerta {% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="mt-3">
+        <a href="{% url 'listar_alertas' %}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Volver</a>
+    </div>
+    <div class="row mt-2">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Detalles de la Alerta</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>ID de la Alerta:</strong> {{ alerta.idAlerta }}</li>
+                        <li class="list-group-item"><strong>Descripción:</strong> {{ alerta.descripcion }}</li>
+                        <li class="list-group-item"><strong>Estado:</strong> {{ alerta.get_estado_display }}</li>
+                        <li class="list-group-item"><strong>Fecha:</strong> {{ alerta.fecha }}</li>
+                        <li class="list-group-item"><strong>Tipo de Incidencia:</strong> {{ alerta.tipo_incidencia }}</li>
+                        <li class="list-group-item"><strong>Departamento:</strong> {{ alerta.departamento }}</li>
+                        <li class="list-group-item"><strong>Nombre del Espacio:</strong> {{ alerta.nombre_espacio }}</li>
+                        <li class="list-group-item"><strong>Ubicación del Espacio:</strong> {{ alerta.ubicacion }}</li>
+                        <li class="list-group-item"><strong>Encargado:</strong> {% if alerta.encargado %} {{ alerta.encargado.username }} {% else %} No asignado {% endif %}</li>
+                        {% if user.is_authenticated %}
+                        {% if user.usuario.rol.rol == 'admin' %}
+                            <div class="mt-3">
+                                {% if solucion_alerta %}
+                                    <a href="{% url 'detalles_solucion' solucion_id=solucion_alerta.id %}" class="btn btn-primary btn-sm mt-3">Ver detalles de la solución</a>
+                                {% elif alerta.encargado == user %}
+                                    <p class="text-center">No hay solución registrada para esta alerta.</p>
+                                    <button id="btnSolucionar" class="btn btn-success btn-block mt-3">Solucionar Alerta</button>
+                                {% endif %}
+                            </div>
+                        {% elif alerta.encargado == user %}
+                            <div class="mt-3">
+                                {% if solucion_alerta %}
+                                    <a href="{% url 'detalles_solucion' solucion_id=solucion_alerta.id %}" class="btn btn-primary btn-sm mt-3">Ver detalles de la solución</a>
+                                {% else %}
+                                    <p class="text-center">No hay solución registrada para esta alerta.</p>
+                                    <button id="btnSolucionar" class="btn btn-success btn-block mt-3">Solucionar Alerta</button>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    {% if user.usuario.rol.rol == 'admin' %}
+                        <a href="{% url 'transferir_alerta' alerta.idAlerta %}" class="btn btn-warning btn-sm mt-3">Transferir Alerta</a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                </div>
+            </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Evidencias de la Alerta</h5>
+                </div>
+                <div class="card-body">
+                    <div id="evidenciasCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% if alerta.evidencia1 %}
+                                <div class="carousel-item active">
+                                    <img src="{{ alerta.evidencia1.url }}" class="d-block w-100 carousel-image" alt="Evidencia 1">
+                                </div>
+                            {% endif %}
+                            {% if alerta.evidencia2 %}
+                                <div class="carousel-item {% if not alerta.evidencia1 %}active{% endif %}">
+                                    <img src="{{ alerta.evidencia2.url }}" class="d-block w-100 carousel-image" alt="Evidencia 2">
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#evidenciasCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#evidenciasCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Confirmar la Acción -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacionModalLabel">Confirmación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas solucionar esta alerta?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a id="confirmarSolucionarBtn" href="#" class="btn btn-primary">Confirmar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnSolucionar = document.getElementById('btnSolucionar');
+        const confirmarSolucionarBtn = document.getElementById('confirmarSolucionarBtn');
+        const confirmacionModal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+        const solucionUrl = "{% url 'solucion_alerta' alerta.idAlerta %}";
+
+        btnSolucionar.addEventListener('click', function () {
+            confirmacionModal.show();
+        });
+
+        confirmarSolucionarBtn.addEventListener('click', function () {
+            window.location.href = solucionUrl;
+        });
+
+        // Para asegurarse de que el modal se cierre correctamente
+        document.querySelectorAll('.btn-close, .btn-secondary').forEach(button => {
+            button.addEventListener('click', function () {
+                confirmacionModal.hide();
+            });
+        });
+    });
+</script>
+<style>
+    .carousel-image {
+        height: 300px;
+        object-fit: contain;
+    }
+
+    @media (max-width: 768px) {
+        .carousel-image {
+            height: auto;
+        }
+    }
+
+    .custom-carousel-control {
+        background-color: rgba(0, 0, 0, 0.5);
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+    }
+
+    .custom-carousel-control:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1);
+    }
+</style>
+{% endblock %}

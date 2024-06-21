@@ -1,0 +1,85 @@
+{% extends "plantillaBase.html" %}
+{% block titulo %} Registrar Espacio con Código QR {% endblock %}
+{% block contenido %}
+    <style>
+        /* Estilos adicionales */
+        .codigo-qr {
+            max-width: 300px; /* Tamaño máximo de la imagen del código QR */
+            height: auto;
+        }
+        .input-group-text {
+            width: 80px; /* Ancho del campo de texto para el ID */
+        }
+    </style>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Formulario para registrar Nuevos Espacios</h5>
+                    </div>
+                    <div class="card-body">
+                        <h1 class="mt-5 mb-4 text-center">Registrar Espacio con Código QR</h1>
+                        <div class="row justify-content-center">
+                            <div class="col-md-12">
+                                <form id="espacioForm" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    {{ espacio_form.as_p }}
+                                    <div class="text-center mb-4">
+                                        <button type="button" class="btn btn-primary" onclick="generarCodigoQR()">Generar Código QR</button>
+                                    </div>
+                                    <div id="codigoQrPreview" class="text-center mb-4"></div>
+                                    <!-- Campo oculto para almacenar el ID generado automáticamente -->
+                                    <input type="hidden" name="idQr" id="idQrField">
+                                    <div class="row">
+                                        <div class="col-6 d-flex justify-content-start">
+                                            <a href="{% url 'listado_espacio' %}" class="btn btn-secondary">Volver</a>
+                                        </div>
+                                        <div class="col-6 d-flex justify-content-end">
+                                            <button id="guardarBtn" type="submit" class="btn btn-success" disabled>Registrar Espacio y Código QR</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para generar el código QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script>
+        function generarCodigoQR() {
+            // Generar un ID único alfanumérico para el código QR
+            var nuevoId = generateUUID().substring(0, 10);
+            
+            // Establecer el ID generado automáticamente en el campo de entrada
+            document.getElementById("idQrField").value = nuevoId;
+
+            // Generar el código QR con el nuevo ID
+            var qr = qrcode(0, 'H');
+            qr.addData(nuevoId); // Datos para el QR
+            qr.make();
+            document.getElementById("codigoQrPreview").innerHTML = qr.createImgTag();
+
+            // Habilitar el botón de guardar
+            document.getElementById("guardarBtn").disabled = false;
+        }
+
+        // Función para generar un ID único alfanumérico
+        function generateUUID() { // Public Domain/MIT
+            var d = new Date().getTime();
+            if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+                d += performance.now(); // Use high-precision timer if available
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+    </script>
+{% endblock %}
