@@ -7,7 +7,7 @@ pip install Pillow
 pip install -r requirements.txt
 pip install reportlab
 
--- VERSION 1.8.8
+-- VERSION 3.0
 MEJORA DE CODIGO
 SE ARREGLA REGISTER_USER LO QUE PERMITE REGISTRAR USUARIOS correctamente
 OPTIMIZACION DE ESTADISTICAS Y GRAFICOS
