@@ -67,8 +67,14 @@
                         <div class="btn-container">
                             <div class="btn-left">
                                 {% if solucion_alerta %}
-                                    <button id="btn-accept" class="btn btn-success btn-accept">Aceptar Solución</button>
-                                    <button id="btn-reject" class="btn btn-danger btn-reject">Rechazar Solución</button>
+                                    <form method="POST" action="{% url 'aceptar_solucion' solucion_alerta.alerta.idAlerta %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-accept">Aceptar Solución</button>
+                                    </form>
+                                    <form method="POST" action="{% url 'rechazar_solucion' solucion_alerta.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-reject">Rechazar Solución</button>
+                                    </form>
                                 {% endif %}
                             </div>
                             <div class="btn-right">
@@ -81,83 +87,4 @@
         </div>
     </div>
 </div>
-
-<!-- Toast de Bootstrap para mostrar mensajes -->
-<div id="mensaje-toast" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
-    <div id="mensaje-toast-container"></div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnAccept = document.getElementById('btn-accept');
-
-        if (btnAccept) {
-            btnAccept.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('¿Estás seguro de aceptar esta solución?')) {
-                    const solucionId = "{{ solucion_alerta.alerta.idAlerta }}"; // Obtener el ID de la solución
-
-                    fetch("{% url 'aceptar_solucion' solucion_alerta.alerta.idAlerta %}", {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({}),
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Error en la solicitud.');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const mensajeToast = document.createElement('div');
-                        mensajeToast.classList.add('toast');
-                        mensajeToast.setAttribute('role', 'alert');
-                        mensajeToast.setAttribute('aria-live', 'assertive');
-                        mensajeToast.setAttribute('aria-atomic', 'true');
-
-                        let mensajeTipo = 'bg-success';
-                        if (data.error) {
-                            mensajeTipo = 'bg-danger';
-                        }
-                        mensajeToast.classList.add(mensajeTipo);
-
-                        mensajeToast.innerHTML = `
-                            <div class="toast-body text-white">
-                                ${data.mensaje || data.error}
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                        `;
-
-                        document.getElementById('mensaje-toast-container').appendChild(mensajeToast);
-                        const bootstrapToast = new bootstrap.Toast(mensajeToast);
-                        bootstrapToast.show();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        const mensajeToast = document.createElement('div');
-                        mensajeToast.classList.add('toast', 'bg-danger');
-                        mensajeToast.setAttribute('role', 'alert');
-                        mensajeToast.setAttribute('aria-live', 'assertive');
-                        mensajeToast.setAttribute('aria-atomic', 'true');
-
-                        mensajeToast.innerHTML = `
-                            <div class="toast-body text-white">
-                                Error al aceptar la solución.
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                        `;
-
-                        document.getElementById('mensaje-toast-container').appendChild(mensajeToast);
-                        const bootstrapToast = new bootstrap.Toast(mensajeToast);
-                        bootstrapToast.show();
-                    });
-                }
-            });
-        }
-    });
-</script>
-
 {% endblock %}

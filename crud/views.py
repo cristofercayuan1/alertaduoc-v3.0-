@@ -444,26 +444,28 @@ def listar_alertas(request):
     ubicacion_filtro = request.GET.get('ubicacion')
     estado_filtro = request.GET.get('estado')
     tipo_filtro = request.GET.get('tipo')
+    mis_alertas_filtro = request.GET.get('mis_alertas')  # Filtro para mis alertas asignadas
+    aprobar_filtro = request.GET.get('aprobar')  # Filtro para alertas por aprobar
 
     # Filtrar las alertas según los filtros aplicados
-    filtros = {}
     if ubicacion_filtro:
-        filtros['ubicacion'] = ubicacion_filtro
+        alertas = alertas.filter(ubicacion=ubicacion_filtro)
     if estado_filtro:
-        filtros['estado'] = estado_filtro
+        alertas = alertas.filter(estado=estado_filtro)
     if tipo_filtro:
-        filtros['tipo_incidencia'] = tipo_filtro
+        alertas = alertas.filter(tipo_incidencia=tipo_filtro)
+
+    # Filtrar alertas asignadas si se aplica el filtro de mis alertas
+    if mis_alertas_filtro:
+        alertas = alertas.filter(encargado=current_user)
+
+    # Filtrar alertas por aprobar
+    if aprobar_filtro:
+        alertas = alertas.filter(solucionalerta__isnull=False, estado='3')
 
     # Filtrar alertas según el departamento si no es idDep: 1
     if departamento.idDep != '1':
         alertas = alertas.filter(departamento=departamento)
-
-    # Filtrar alertas asignadas si el usuario es de rol 'apoyo'
-    if current_user.usuario.rol == 'apoyo':
-        alertas = alertas.filter(encargado=current_user)
-
-    # Aplicar filtros
-    alertas = alertas.filter(**filtros)
 
     total_alertas_filtradas = alertas.count()  # Contador de alertas filtradas
 
@@ -473,18 +475,19 @@ def listar_alertas(request):
     context = {
         'alertas': alertas,
         'total_alertas': total_alertas,
-        'total_alertas_filtradas': total_alertas_filtradas,  # Agregar contador de alertas filtradas
+        'total_alertas_filtradas': total_alertas_filtradas,
         'ubicaciones': ubicaciones,
         'estados': estados,
         'tipos_incidencia': tipos_incidencia,
         'ubicacion_filtro': ubicacion_filtro,
         'estado_filtro': estado_filtro,
         'tipo_filtro': tipo_filtro,
+        'mis_alertas_filtro': mis_alertas_filtro,
+        'aprobar_filtro': aprobar_filtro,
         'usuarios': usuarios,
     }
 
     return render(request, 'solicitudes.html', context)
-
 
 
 @login_required
@@ -734,50 +737,6 @@ def estadisticas_alertas(request):
     return render(request, 'estadisticas_alertas.html', context)
 
 
-
-@login_required
-def filtrar_mis_alertas(request):
-    current_user = request.user
-
-    # Filtrar las alertas asignadas al usuario actual
-    mis_alertas = Alerta.objects.filter(encargado=current_user)
-
-    total_alertas_filtradas = mis_alertas.count()  # Contador de alertas filtradas
-
-    context = {
-        'alertas': mis_alertas,
-        'total_alertas': total_alertas_filtradas,
-        'total_alertas_filtradas': total_alertas_filtradas,
-        # Otras variables de contexto que puedas necesitar...
-    }
-
-    return render(request, 'solicitudes.html', context)
-
-
-
-@login_required
-def alertas_por_aprobar(request):
-    current_user = request.user
-    departamento = current_user.usuario.departamento
-
-    # Filtrar las alertas por soluciones pendientes de aprobación (en observación)
-    alertas_pendientes_aprobacion = Alerta.objects.filter(solucionalerta__isnull=False, estado='3')
-
-    # Filtrar alertas según el departamento si no es idDep: 1
-    if departamento.idDep != '1':
-        alertas_pendientes_aprobacion = alertas_pendientes_aprobacion.filter(departamento=departamento)
-
-    total_alertas = alertas_pendientes_aprobacion.count()  # Contador de alertas filtradas
-
-    context = {
-        'alertas': alertas_pendientes_aprobacion,
-        'total_alertas': total_alertas,
-    }
-
-    return render(request, 'solicitudes.html', context)
-
-
-
 @login_required
 def asignar_alerta(request):
     if request.method == 'POST':
@@ -897,7 +856,7 @@ def solucion_alerta(request, alerta_id):
             alerta.estado = '3'  # Cambiar el estado de la alerta si es necesario
             alerta.save()
 
-            messages.info(request, 'Tu solución está siendo verificada por la administración.')
+            messages.success(request, 'Tu solución está siendo verificada por la administración.')
             return redirect('detalles_alerta', id_alerta=alerta_id)
     else:
         form = SolucionAlertaForm()
@@ -927,6 +886,7 @@ def detalles_solucion(request, solucion_id):
 
 
 
+@login_required
 @require_POST
 def aceptar_solucion(request, solucion_id):
     try:
@@ -941,33 +901,46 @@ def aceptar_solucion(request, solucion_id):
         solucion.fecha_resolucion = timezone.now()
         solucion.save()
 
-        # Preparar el mensaje de éxito para enviar como JSON
-        mensaje = 'La solución ha sido aceptada correctamente.'
-        return JsonResponse({'mensaje': mensaje})
-    
+        # Añadir mensaje de éxito
+        messages.success(request, 'La solución ha sido aceptada correctamente.')
+
     except Alerta.DoesNotExist:
-        return JsonResponse({'error': 'La alerta especificada no existe.'}, status=404)
+        messages.error(request, 'La alerta especificada no existe.')
     
     except SolucionAlerta.DoesNotExist:
-        return JsonResponse({'error': 'La solución especificada no existe.'}, status=404)
+        messages.error(request, 'La solución especificada no existe.')
     
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        messages.error(request, f'Error: {str(e)}')
 
+    return redirect('listar_alertas')
+@login_required
+@require_POST
 def rechazar_solucion(request, solucion_id):
-    print(f'Rechazando solución para solución ID: {solucion_id}')
-    solucion = get_object_or_404(SolucionAlerta, pk=solucion_id)
-    
-    if request.method == 'POST':
-        print('Método POST recibido')
-        # Eliminar la instancia de SolucionAlerta
+    try:
+        solucion = get_object_or_404(SolucionAlerta, pk=solucion_id)
+        alerta = get_object_or_404(Alerta, idAlerta=solucion.alerta.idAlerta)
+
+        # Cambiar estado de la alerta a "Pendiente"
+        alerta.estado = '1'
+        alerta.save()
+
+        # Eliminar la solución
         solucion.delete()
 
-        # Aquí puedes realizar otras acciones adicionales si es necesario
+        # Añadir mensaje de éxito
+        messages.success(request, 'Solución rechazada correctamente. La alerta ha sido marcada como pendiente nuevamente.')
 
-        return JsonResponse({'mensaje': 'Solución rechazada correctamente.'})
+    except Alerta.DoesNotExist:
+        messages.error(request, 'La alerta especificada no existe.')
     
-    return JsonResponse({'error': 'Método no permitido.'}, status=405)
+    except SolucionAlerta.DoesNotExist:
+        messages.error(request, 'La solución especificada no existe.')
+
+    except Exception as e:
+        messages.error(request, f'Error: {str(e)}')
+
+    return redirect('listar_alertas')
 
 
 @login_required

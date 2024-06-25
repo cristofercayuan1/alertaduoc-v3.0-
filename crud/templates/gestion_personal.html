@@ -4,7 +4,7 @@
 
 {% block contenido %}
 <div class="container">
-    <div class="row">
+    <div class="row mt-3">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
@@ -14,33 +14,31 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form action="{% url 'gestion_personal' %}" method="GET">
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <input type="text" id="buscar" name="buscar" class="form-control form-control-sm" placeholder="Buscar por caracteres" value="{{ buscar|default_if_none:'' }}">
-                            </div>
-                            <div class="col-lg-3">
-                                <select name="rol" class="form-select form-select-sm" aria-label="Filtrar por Rol">
-                                    <option value="" {% if not rol_filter %}selected{% endif %}>Seleccionar Rol</option>
-                                    {% for rol in roles %}
-                                        <option value="{{ rol.rol }}" {% if rol.rol == rol_filter %}selected{% endif %}>{{ rol.rol }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            {% if user.usuario.departamento.idDep == '1' %}
-                            <div class="col-lg-3">
-                                <select name="departamento" class="form-select form-select-sm" aria-label="Filtrar por Departamento">
-                                    <option value="" {% if not departamento_filter %}selected{% endif %}>Seleccionar Departamento</option>
-                                    {% for departamento in departamentos %}
-                                        <option value="{{ departamento.idDep }}" {% if departamento.idDep == departamento_filter %}selected{% endif %}>{{ departamento.nombredep }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            {% endif %}
-                            <div class="col-lg-3 mt-2 mt-lg-0">
-                                <button type="submit" class="btn btn-secondary btn-sm">Aplicar Filtro</button>
-                                <a href="{{ reset_url }}" class="btn btn-secondary btn-sm ms-2">Quitar Filtros</a>
-                            </div>
+                    <form action="{% url 'gestion_personal' %}" method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <input type="text" id="buscar" name="buscar" class="form-control form-control-sm" placeholder="Buscar por caracteres" value="{{ buscar|default_if_none:'' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="rol" class="form-select form-select-sm">
+                                <option value="" {% if not rol_filter %}selected{% endif %}>Seleccionar Rol</option>
+                                {% for rol in roles %}
+                                    <option value="{{ rol.rol }}" {% if rol.rol == rol_filter %}selected{% endif %}>{{ rol.rol }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if user.usuario.departamento.idDep == '1' %}
+                        <div class="col-md-3">
+                            <select name="departamento" class="form-select form-select-sm">
+                                <option value="" {% if not departamento_filter %}selected{% endif %}>Seleccionar Departamento</option>
+                                {% for departamento in departamentos %}
+                                    <option value="{{ departamento.idDep }}" {% if departamento.idDep == departamento_filter %}selected{% endif %}>{{ departamento.nombredep }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" class="btn btn-secondary btn-sm ms-3">Aplicar Filtro</button>
+                            <a href="{% url 'gestion_personal' %}" class="btn btn-secondary btn-sm ms-2">Quitar Filtros</a>
                         </div>
                     </form>
                 </div>
@@ -55,8 +53,8 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table">
-                            <thead>
+                        <table class="table table-striped table-bordered">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Nombre de Usuario</th>
                                     <th>Nombre</th>
@@ -75,11 +73,13 @@
                                     <td>{{ usuario.usuario.last_name }}</td>
                                     <td>{{ usuario.rol }}</td>
                                     <td>{{ usuario.departamento }}</td>
-                                    <td><a href="{% url 'edit_user' usuario.usuario.id %}" class="btn btn-primary btn-sm">Editar</a></td>
+                                    <td>
+                                        <a href="{% url 'edit_user' usuario.usuario.id %}" class="btn btn-primary btn-sm me-2">Editar</a>
+                                    </td>
                                     <td>
                                         <form action="{% url 'eliminar_usuario' usuario.usuario.id %}" method="post" id="eliminar_form_{{ usuario.usuario.id }}">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger btn-sm eliminar-btn" data-usuario-id="{{ usuario.usuario.id }}">Eliminar</button>
+                                            <button type="button" class="btn btn-danger btn-sm eliminar-btn" data-bs-toggle="modal" data-bs-target="#confirmacion-eliminacion-usuario-modal" data-usuario-id="{{ usuario.usuario.id }}" data-usuario-nombre="{{ usuario.usuario.get_full_name }}">Eliminar</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -92,7 +92,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- Modal de confirmación de eliminación de usuario -->
 <div class="modal fade" id="confirmacion-eliminacion-usuario-modal" tabindex="-1" aria-labelledby="confirmacion-eliminacion-usuario-modal-label" aria-hidden="true">
